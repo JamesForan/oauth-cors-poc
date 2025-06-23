@@ -2,6 +2,7 @@
 	import OAuthConfig from '$lib/components/OAuthConfig.svelte';
 	import AuthStatus from '$lib/components/AuthStatus.svelte';
 	import CorsTestor from '$lib/components/CorsTestor.svelte';
+	import TokenTester from '$lib/components/TokenTester.svelte';
 </script>
 
 <svelte:head>
@@ -25,7 +26,10 @@
 	</section>
 
 	<section class="testing-section">
-		<CorsTestor />
+		<TokenTester />
+		<div style="margin-top: 3rem;">
+			<CorsTestor />
+		</div>
 	</section>
 
 	<footer>
