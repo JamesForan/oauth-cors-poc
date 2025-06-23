@@ -7,6 +7,10 @@
 	let tokenInfo = null;
 	let selectedOrg = "";
 	let selectedLocation = "";
+	let sendOrgHeader = true;
+	let sendLocationHeader = true;
+	let orgHeaderName = "SelectedOrganization";
+	let locationHeaderName = "SelectedLocation";
 
 	function decodeJWT(token) {
 		try {
@@ -70,8 +74,13 @@
 			return;
 		}
 
-		if (!selectedOrg || !selectedLocation) {
-			alert("Please select both organization and location");
+		if (sendOrgHeader && !selectedOrg) {
+			alert("Please select an organization or disable the organization header");
+			return;
+		}
+
+		if (sendLocationHeader && !selectedLocation) {
+			alert("Please select a location or disable the location header");
 			return;
 		}
 
@@ -94,14 +103,22 @@
 		};
 
 		try {
+			const headers = {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "application/json",
+			};
+
+			if (sendOrgHeader && selectedOrg) {
+				headers[orgHeaderName] = selectedOrg;
+			}
+
+			if (sendLocationHeader && selectedLocation) {
+				headers[locationHeaderName] = selectedLocation;
+			}
+
 			const response = await fetch(apiUrl, {
 				method: "GET",
-				headers: {
-					Authorization: `Bearer ${token}`,
-					"Content-Type": "application/json",
-					SelectedOrganization: selectedOrg,
-					SelectedLocation: selectedLocation,
-				},
+				headers,
 			});
 
 			result.status = response.status;
@@ -199,31 +216,61 @@
 		{#if tokenInfo && tokenInfo.valid && (tokenInfo.userOrgs.length > 0 || tokenInfo.userLocations.length > 0)}
 			<div class="selection-section">
 				{#if tokenInfo.userOrgs.length > 0}
-					<div class="input-group">
-						<label for="orgSelect">Select Organization:</label>
-						<select id="orgSelect" bind:value={selectedOrg}>
-							<option value="">-- Select Organization --</option>
-							{#each tokenInfo.userOrgs as org}
-								<option value={org}>{org}</option>
-							{/each}
-						</select>
+					<div class="header-config">
+						<div class="checkbox-group">
+							<input type="checkbox" id="sendOrgHeader" bind:checked={sendOrgHeader}>
+							<label for="sendOrgHeader">Send Organization Header</label>
+						</div>
+						{#if sendOrgHeader}
+							<div class="header-name-group">
+								<label for="orgHeaderName">Header Name:</label>
+								<select id="orgHeaderName" bind:value={orgHeaderName}>
+									<option value="SelectedOrganization">SelectedOrganization</option>
+									<option value="Organisation">Organisation</option>
+								</select>
+							</div>
+							<div class="input-group">
+								<label for="orgSelect">Select Organization:</label>
+								<select id="orgSelect" bind:value={selectedOrg}>
+									<option value="">-- Select Organization --</option>
+									{#each tokenInfo.userOrgs as org}
+										<option value={org}>{org}</option>
+									{/each}
+								</select>
+							</div>
+						{/if}
 					</div>
 				{/if}
 
 				{#if tokenInfo.userLocations.length > 0}
-					<div class="input-group">
-						<label for="locationSelect">Select Location:</label>
-						<select
-							id="locationSelect"
-							bind:value={selectedLocation}
-						>
-							<option value="">-- Select Location --</option>
-							{#each tokenInfo.userLocations as location}
-								<option value={location.locationId}
-									>{location.locationId}</option
+					<div class="header-config">
+						<div class="checkbox-group">
+							<input type="checkbox" id="sendLocationHeader" bind:checked={sendLocationHeader}>
+							<label for="sendLocationHeader">Send Location Header</label>
+						</div>
+						{#if sendLocationHeader}
+							<div class="header-name-group">
+								<label for="locationHeaderName">Header Name:</label>
+								<select id="locationHeaderName" bind:value={locationHeaderName}>
+									<option value="SelectedLocation">SelectedLocation</option>
+									<option value="Location">Location</option>
+								</select>
+							</div>
+							<div class="input-group">
+								<label for="locationSelect">Select Location:</label>
+								<select
+									id="locationSelect"
+									bind:value={selectedLocation}
 								>
-							{/each}
-						</select>
+									<option value="">-- Select Location --</option>
+									{#each tokenInfo.userLocations as location}
+										<option value={location.locationId}
+											>{location.locationId}</option
+										>
+									{/each}
+								</select>
+							</div>
+						{/if}
 					</div>
 				{/if}
 			</div>
@@ -457,6 +504,50 @@
 		border-radius: 4px;
 		margin-bottom: 1rem;
 		border: 1px solid #b3d9e6;
+	}
+
+	.header-config {
+		margin-bottom: 1.5rem;
+		padding: 1rem;
+		background: #f0f8ff;
+		border-radius: 4px;
+		border: 1px solid #d4e6f1;
+	}
+
+	.checkbox-group {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.checkbox-group input[type="checkbox"] {
+		width: auto;
+		margin: 0;
+	}
+
+	.checkbox-group label {
+		margin: 0;
+		font-weight: bold;
+		cursor: pointer;
+	}
+
+	.header-name-group {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.header-name-group label {
+		margin: 0;
+		font-weight: bold;
+		min-width: 100px;
+	}
+
+	.header-name-group select {
+		flex: 1;
+		max-width: 200px;
 	}
 
 	.button-group {
