@@ -47,7 +47,7 @@ The app implements OAuth 2.0 Authorization Code flow with PKCE:
 ### Default Configuration
 
 - Default redirect URI: `{window.location.origin}/callback`
-- Development server: `http://localhost:5174/callback` (or next available port)
+- Development server: `http://localhost:5173/callback` (or next available port)
 - Default scope: `openid profile email`
 
 ### Missing Route Handler
